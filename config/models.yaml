@@ -1,0 +1,11 @@
+models:
+  - name: qwen
+    identifier: qwen2.5:7b
+
+  - name: llama
+    identifier: llama 3.1:8b
+    host: localhost
+    port: 11434
+
+  - name: mistral
+    identifier: mistral:7b

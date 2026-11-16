@@ -1,0 +1,5 @@
+repititions: 5
+model_temp: 0.0
+top_p: 10
+max_tokens: 512
+seed: 42
