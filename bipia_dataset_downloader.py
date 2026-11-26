@@ -11,7 +11,7 @@ from pathlib import Path
 from datasets import Dataset
 from typing import Any
 
-PROJECT_ROOT = Path(__file__).resolve().parent
+PROJECT_ROOT = Path(__file__).resolve().parents[0]
 
 DATA_DIR = PROJECT_ROOT / "src" / "data"
 OUTPUT_DIR = PROJECT_ROOT / "src" / "results" / "bipia" / "datasets"
