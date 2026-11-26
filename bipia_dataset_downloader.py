@@ -11,10 +11,10 @@ from pathlib import Path
 from datasets import Dataset
 from typing import Any
 
-PROJECT_ROOT = Path(__file__).resolve().parents[0]
+PROJECT_ROOT = Path(__file__).resolve().parent
 
 DATA_DIR = PROJECT_ROOT / "src" / "data"
-OUTPUT_DIR = PROJECT_ROOT / "src" / "results" / "bipia" / "datasets"
+OUTPUT_DIR = PROJECT_ROOT / "src" / "data" / "bipia_datasets"
 BIPIA_BENCHMARK = PROJECT_ROOT / "BIPIA" / "benchmark"
 QA_SOURCE_DIR = BIPIA_BENCHMARK / "qa"
 
@@ -38,6 +38,7 @@ def find_paths(dataset_name: str, split: str)->tuple[Path, Path]:
 def builder(dataset_name:str, split:str = SPLIT, seed:int = SEED) -> Any:
 
     if dataset_name in EXT_DATASET_NAMES:
+        pass
         context_data_file = external_builder(dataset_name, split, qa_source_dir=QA_SOURCE_DIR)
         _, attack_data_file = find_paths(dataset_name, split)
     else:

@@ -30,7 +30,6 @@ def normalize_row(data: dict, *, task: str, line_number: int,) -> ExperimentCase
         ),
     )
 
-
 def jsonl_to_experiment_cases(json_file: str | Path, *, task: str | None = None,) -> list[ExperimentCase]:
     """Load and normalize every record in a BIPIA JSONL file."""
 
