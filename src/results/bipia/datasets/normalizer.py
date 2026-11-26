@@ -1,15 +1,7 @@
 import json
-
+from dataclasses import dataclass
 from pathlib import Path
-from annotated_types import dataclass
 
-_PATHS = [
-    "code" / "test.jsonl", 
-    "email" / "test.jsonl", 
-    "table" / "test.jsonl", 
-    "qa" / "test.jsonl", 
-    "abstract" / "test.jsonl"
-]
 
 @dataclass
 class ExperimentCase:
@@ -19,29 +11,55 @@ class ExperimentCase:
     question: str
     attack: str
     attack_id: str
-    expected_answer: str | None
+    expected_answer: str | None = None
 
-def json_to_exerpiment_case(json_file : str | Path) -> ExperimentCase:
 
-    def normalize_json(path : Path) -> ExperimentCase:
-        with open(path.name, "r", encoding="utf-8") as file:
-            data = json.load(file)
+def normalize_row(data: dict, *, task: str, line_number: int,) -> ExperimentCase:
+    """Convert one raw BIPIA row into the project schema."""
 
-            return ExperimentCase(
-                case_id=data["case_id"],
-                task=data["task"],
-                context=data["context"],
-                question=data["question"],
-                attack=data["attack"],
-                attack_id=data["attack_id"],
-                expected_answer=data["expected_answer"]
+    return ExperimentCase(
+        case_id=str(data.get("case_id", f"{task}:test:{line_number}")),
+        task=task,
+        context=str(data.get("context", data.get("content", ""))),
+        question=str(data.get("question", data.get("query", ""))),
+        attack=str(data.get("attack", data.get("injection", ""))),
+        attack_id=str(data.get("attack_id", data.get("id", line_number))),
+        expected_answer=data.get(
+            "expected_answer",
+            data.get("answer"),
+        ),
+    )
+
+
+def jsonl_to_experiment_cases(json_file: str | Path, *, task: str | None = None,) -> list[ExperimentCase]:
+    """Load and normalize every record in a BIPIA JSONL file."""
+
+    path = Path(json_file) if isinstance(json_file, str) else json_file
+
+    if not path.is_file():
+        raise FileNotFoundError(f"BIPIA dataset file not found: {path}")
+
+    resolved_task = task or path.parent.name
+    cases: list[ExperimentCase] = []
+
+    with path.open("r", encoding="utf-8") as file:
+        for line_number, line in enumerate(file):
+            if not line.strip():
+                continue
+
+            try:
+                data = json.loads(line)
+            except json.JSONDecodeError as exc:
+                raise ValueError(
+                    f"Invalid JSON on line {line_number + 1} of {path}"
+                ) from exc
+
+            cases.append(
+                normalize_row(
+                    data,
+                    task=resolved_task,
+                    line_number=line_number,
+                )
             )
 
-    if isinstance(json_file, Path):
-        if json_file.is_file() and json_file.name in _PATHS:
-            return normalize_json()
-
-    if isinstance(json_file, str):
-        json_path = Path(json_file)
-        if json_file in _PATHS and json_path.is_file():
-            return normalize_json()
+    return cases
