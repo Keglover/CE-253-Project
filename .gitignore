@@ -1,2 +1,5 @@
-/results/
+/results/summaries/
+/results/raw/
+/results/figures
 /BIPIA/
+/src/data/bipia_datasets/

@@ -12,51 +12,38 @@ class ExperimentCase:
     attack: str
     attack_id: str
     expected_answer: str | None = None
+    insertion_position: str | None = None
 
-
-def normalize_row(data: dict, *, task: str, line_number: int,) -> ExperimentCase:
-    """Convert one raw BIPIA row into the project schema."""
+def normalize_row(data: dict, *, line_number: int,) -> ExperimentCase:
+    ideal = data.get("ideal")
 
     return ExperimentCase(
-        case_id=str(data.get("case_id", f"{task}:test:{line_number}")),
-        task=task,
-        context=str(data.get("context", data.get("content", ""))),
-        question=str(data.get("question", data.get("query", ""))),
-        attack=str(data.get("attack", data.get("injection", ""))),
-        attack_id=str(data.get("attack_id", data.get("id", line_number))),
-        expected_answer=data.get(
-            "expected_answer",
-            data.get("answer"),
+        case_id=(
+            f"{data['task_name']}:test:"
+            f"{data['attack_name']}:{line_number}"
         ),
+        task=data["task_name"],
+        context=data["context"],
+        question=data["question"],
+        attack=data["attack_str"],
+        attack_id=data["attack_name"],
+        expected_answer=ideal,
+        insertion_position=data.get("position"),
     )
 
-def jsonl_to_experiment_cases(json_file: str | Path, *, task: str | None = None,) -> list[ExperimentCase]:
-    """Load and normalize every record in a BIPIA JSONL file."""
-
-    path = Path(json_file) if isinstance(json_file, str) else json_file
-
-    if not path.is_file():
-        raise FileNotFoundError(f"BIPIA dataset file not found: {path}")
-
-    resolved_task = task or path.parent.name
-    cases: list[ExperimentCase] = []
+def jsonl_to_experiment_cases(json_path: str | Path) -> list[ExperimentCase]:
+    path = Path(json_path) if isinstance(json_path, str) else json_path
+    cases = []
 
     with path.open("r", encoding="utf-8") as file:
         for line_number, line in enumerate(file):
             if not line.strip():
                 continue
 
-            try:
-                data = json.loads(line)
-            except json.JSONDecodeError as exc:
-                raise ValueError(
-                    f"Invalid JSON on line {line_number + 1} of {path}"
-                ) from exc
-
+            data = json.loads(line)
             cases.append(
                 normalize_row(
                     data,
-                    task=resolved_task,
                     line_number=line_number,
                 )
             )
