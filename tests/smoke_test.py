@@ -7,6 +7,12 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.data.normalizer import jsonl_to_experiment_cases
 
+'''
+    This is a simple smoke test to ensure that components are all created and talking together nicely.
+    This is BY NO MEANS a comprehensive testing framework! It exists solely to make sure that components
+    are being created in their most basic forms and that components of the experiment are able to communicate.
+'''
+
 # Experiment Cases
 
 cases = jsonl_to_experiment_cases(DATASET_DIR / "email" / "test.jsonl")
@@ -21,7 +27,7 @@ assert cases[0].attack_id
 assert cases[0].expected_answer
 
 # Adapters
-from src.model_adapters import base, ollama
+from src.model_adapters import ollama
 
 adapter_ol = ollama.OllamaAdapter("qwen2.5:7b")
 

@@ -4,7 +4,7 @@ from pathlib import Path
 
 
 @dataclass
-class ExperimentCase:
+class NormalizedCase:
     case_id: str
     task: str
     context: str
@@ -14,10 +14,10 @@ class ExperimentCase:
     expected_answer: str | None = None
     insertion_position: str | None = None
 
-def normalize_row(data: dict, *, line_number: int,) -> ExperimentCase:
+def normalize_row(data: dict, *, line_number: int,) -> NormalizedCase:
     ideal = data.get("ideal")
 
-    return ExperimentCase(
+    return NormalizedCase(
         case_id=(
             f"{data['task_name']}:test:"
             f"{data['attack_name']}:{line_number}"
@@ -31,7 +31,7 @@ def normalize_row(data: dict, *, line_number: int,) -> ExperimentCase:
         insertion_position=data.get("position"),
     )
 
-def jsonl_to_experiment_cases(json_path: str | Path) -> list[ExperimentCase]:
+def jsonl_to_experiment_cases(json_path: str | Path) -> list[NormalizedCase]:
     path = Path(json_path) if isinstance(json_path, str) else json_path
     cases = []
 
