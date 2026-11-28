@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from ..src.prompting.schema import DefenseVariant
+from ..src.prompting.prompt_builder import DefenseVariant
 
 @dataclass
 class TrialResult:
