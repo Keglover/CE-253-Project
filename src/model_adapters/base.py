@@ -4,6 +4,8 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Any, Literal, Sequence
 
+from model_adapters.base import ToolCall
+
 MessageRole = Literal["system", "user", "assistant", "tool"]
 
 @dataclass(frozen=True)
@@ -12,6 +14,7 @@ class ChatMessage:
     content: str
     name: str | None = None
     tool_call_id: str | None = None
+    tool_calls : list[ToolCall] = None
 
     def as_dict(self) -> dict[str, Any]:
         message: dict[str, Any] = {
@@ -66,8 +69,6 @@ class ModelResponse:
 
 
 class ModelAdapter(ABC):
-    """Provider-independent interface for model inference."""
-
     def __init__(self, model_name: str, *, temperature: float = 0.0, max_tokens: int | None = None,) -> None:
         self.model_name = model_name
         self.temperature = temperature
@@ -83,18 +84,8 @@ class ModelAdapter(ABC):
         messages: list[ChatMessage] = []
 
         if system_prompt is not None:
-            messages.append(
-                ChatMessage(
-                    role="system",
-                    content=system_prompt,
-                )
-            )
+            messages.append(ChatMessage(role="system", content=system_prompt))
 
-        messages.append(
-            ChatMessage(
-                role="user",
-                content=prompt,
-            )
-        )
+        messages.append(ChatMessage(role="user", content=prompt))
 
         return self.generate(messages, tools=tools)

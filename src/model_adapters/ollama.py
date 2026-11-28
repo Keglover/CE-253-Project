@@ -13,7 +13,6 @@ from .base import (
     ToolDefinition,
 )
 
-
 class OllamaAdapter(ModelAdapter):
 
     def __init__(self, model_name: str, *, host: str = "localhost", port: int = 11434, temperature: float = 0.0, max_tokens: int | None = None, timeout: float = 120.0,) -> None:

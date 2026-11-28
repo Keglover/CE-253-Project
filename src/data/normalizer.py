@@ -41,11 +41,6 @@ def jsonl_to_experiment_cases(json_path: str | Path) -> list[NormalizedCase]:
                 continue
 
             data = json.loads(line)
-            cases.append(
-                normalize_row(
-                    data,
-                    line_number=line_number,
-                )
-            )
+            cases.append(normalize_row(data, line_number=line_number))
 
     return cases
